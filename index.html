@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krṣiveda (कृषिवेद) - Satellite Precision Agriculture Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              deep: '#1b4332',
+              green: '#2d6a4f',
+              light: '#40916c',
+              mint: '#52b788',
+              pale: '#d8f3dc',
+              earth: '#f7faf7',
+              gold: '#d97706',
+              alert: '#dc2626'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Leaflet CSS & JS for Satellite Imagery -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-[#f7faf7] text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP ANNOUNCEMENT / HACKATHON BAR -->
+  <div class="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="bg-amber-500 text-slate-900 font-extrabold text-[10px] px-2 py-0.5 rounded tracking-wide uppercase">Dolphin Tank India</span>
+        <span>Social Impact Hackathon 2026 • <strong>Team Gammacoders</strong></span>
+        <span class="hidden sm:inline text-emerald-300">| Agriculture Service Through Satellite</span>
+      </div>
+      <div class="flex items-center gap-4 text-emerald-200 text-xs">
+        <span class="hidden md:inline">Satellite Data + AI = Smarter Farming</span>
+        <button onclick="toggleRole()" class="hover:text-white underline font-semibold flex items-center gap-1 cursor-pointer">
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+          <span>Switch Persona</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMONSTRATION & PROTOTYPE DISCLAIMER STRIP -->
+  <div class="bg-amber-500/15 border-b border-amber-500/30 text-amber-950 text-[11px] py-1 px-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-1.5 font-medium">
+        <span class="bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded uppercase">Demo Mode</span>
+        <span data-en="Demonstration Data: All satellite telemetry, soil test figures, advisory audio, and market transactions are simulated demonstration data for Dolphin Tank India 2026."
+              data-hi="प्रदर्शन डेटा: सभी उपग्रह टेलीमेट्री, मृदा परीक्षण मान, सलाहकार ऑडियो और बाज़ार लेन-देन केवल डॉल्फ़िन टैंक इंडिया 2026 हैकाथॉन प्रदर्शन हेतु हैं।">
+          Demonstration Data: All satellite telemetry, soil test figures, advisory audio, and market transactions are simulated demonstration data for Dolphin Tank India 2026.
+        </span>
+      </div>
+      <span class="hidden sm:inline text-amber-900 font-semibold text-[10px]">Plot 12, Varanasi • 2.40 Acres • Non-certified simulation</span>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER & NAVIGATION -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 flex items-center justify-center text-white shadow-md shadow-emerald-900/20">
+            <i data-lucide="sprout" class="w-7 h-7 text-emerald-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl font-black tracking-tight text-slate-900">Kṛṣiveda</span>
+              <span class="text-xl font-bold text-emerald-700 font-serif">कृषिवेद</span>
+            </div>
+            <p class="text-[11px] font-semibold text-slate-500 tracking-wide uppercase">Sustainable Farming • Brighter Tomorrow</p>
+          </div>
+        </div>
+
+        <!-- Center Nav Tabs -->
+        <nav class="hidden lg:flex items-center space-x-1 font-semibold text-sm">
+          <button onclick="switchTab('dashboard')" data-tab-target="dashboard" class="px-3.5 py-2 rounded-lg border-b-2 border-emerald-700 text-emerald-800 font-bold transition">
+            <span data-i18n="nav.home">Dashboard</span>
+          </button>
+          <button onclick="switchTab('satellite')" data-tab-target="satellite" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition">
+            <span data-i18n="nav.satellite">Satellite Zones</span>
+          </button>
+          <button onclick="switchTab('soil-report')" data-tab-target="soil-report" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition">
+            <span data-i18n="nav.soilReport">Soil Reports</span>
+          </button>
+          <button onclick="switchTab('fertilizers')" data-tab-target="fertilizers" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition">
+            <span data-i18n="nav.fertilizers">Natural Fertilizers</span>
+          </button>
+          <button onclick="switchTab('channels')" data-tab-target="channels" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition">
+            <span data-i18n="nav.advisory">Advisory & SMS</span>
+          </button>
+          <button onclick="switchTab('impact')" data-tab-target="impact" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition">
+            <span data-i18n="nav.vision">Vision & SDGs</span>
+          </button>
+        </nav>
+
+        <!-- Right Action Controls -->
+        <div class="flex items-center gap-3">
+          
+          <!-- Language Toggle Button -->
+          <button onclick="toggleLanguage()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="languages" class="w-4 h-4 text-emerald-700"></i>
+            <span id="lang-toggle-text">हिंदी</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button onclick="toggleTheme()" class="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition" title="Toggle Satellite Dark Mode">
+            <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Shopping Cart Icon -->
+          <button onclick="toggleCartDrawer()" class="relative p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition">
+            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+            <span id="cart-count-badge" class="hidden">0</span>
+          </button>
+
+          <!-- User Profile & Auth Controls -->
+          <div id="user-logged-in-profile" class="flex items-center gap-2 pl-2 border-l border-slate-200">
+            <div id="user-profile-avatar" class="w-9 h-9 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 font-bold text-xs">
+              RY
+            </div>
+            <div class="hidden sm:block text-left">
+              <div class="flex items-center gap-1.5">
+                <span id="user-profile-name" class="text-xs font-bold text-slate-800">Ramesh Yadav</span>
+                <span id="user-role-badge" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">Farmer</span>
+              </div>
+              <span id="user-plot-desc" class="text-[10px] text-slate-500 block">Plot No. 12, Varanasi</span>
+            </div>
+            <button onclick="handleLogout()" title="Logout" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div id="user-logged-out-btn" class="hidden pl-2 border-l border-slate-200">
+            <button onclick="openLoginModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+              <span>Login / साइन इन</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Bar -->
+      <div class="lg:hidden flex items-center overflow-x-auto py-2 border-t border-slate-100 gap-2 text-xs font-medium no-scrollbar">
+        <button onclick="switchTab('dashboard')" data-tab-target="dashboard" class="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-900 whitespace-nowrap font-bold"><span data-i18n="nav.home">Dashboard</span></button>
+        <button onclick="switchTab('satellite')" data-tab-target="satellite" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap"><span data-i18n="nav.satellite">Satellite Zones</span></button>
+        <button onclick="switchTab('soil-report')" data-tab-target="soil-report" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap"><span data-i18n="nav.soilReport">Soil Reports</span></button>
+        <button onclick="switchTab('fertilizers')" data-tab-target="fertilizers" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap"><span data-i18n="nav.fertilizers">Natural Fertilizers</span></button>
+        <button onclick="switchTab('channels')" data-tab-target="channels" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap"><span data-i18n="nav.advisory">Advisory & SMS</span></button>
+        <button onclick="switchTab('impact')" data-tab-target="impact" class="px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap"><span data-i18n="nav.vision">Vision & SDGs</span></button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN BODY CONTENT -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: FARMER DASHBOARD (MATCHES SCREEN 1) -->
+    <!-- ========================================== -->
+    <div id="tab-dashboard" class="app-tab-content space-y-6">
+      
+      <!-- Top Welcome Banner & Voice Playback -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+        <div class="relative z-10 space-y-1">
+          <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
+            <span data-i18n="dash.syncStatus">Sentinel-2 & Radar SAR Synced: Today 10:45 AM (Demo Telemetry)</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight" data-i18n="dash.welcomeTitle">
+            Farmer Dashboard
+          </h1>
+          <p class="text-emerald-100 text-sm" data-i18n="dash.welcomeSub">
+            Welcome back, Ramesh ji • Chitaipur Village, Varanasi (Plot 12 • 2.40 Acres)
+          </p>
+        </div>
+
+        <!-- Voice Advisory TTS Button -->
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div id="voice-waves" class="hidden flex items-center h-6 px-2 bg-emerald-950/40 rounded-lg">
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+          </div>
+          <button id="btn-play-voice" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-2xl flex items-center gap-2 shadow-md transition active:scale-95 cursor-pointer">
+            <i data-lucide="volume-2" class="w-5 h-5"></i>
+            <span id="voice-btn-label" data-i18n="dash.voiceBtn">Listen Voice Advisory</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Critical Weather Alert Banner (Screen 1) -->
+      <div class="bg-amber-50 border-l-4 border-amber-500 rounded-2xl p-4 shadow-sm flex items-start gap-3">
+        <div class="p-2 bg-amber-100 rounded-xl text-amber-700 shrink-0 mt-0.5">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-grow">
+          <h4 class="font-extrabold text-amber-900 text-sm" data-i18n="dash.weatherAlertTitle">
+            Weather Alert
+          </h4>
+          <p class="text-xs sm:text-sm text-amber-800 mt-0.5" data-i18n="dash.weatherAlertMsg">
+            Heavy rain expected in 2 days — delay irrigation & foliar spray
+          </p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-amber-600 hover:text-amber-800 text-xs font-semibold cursor-pointer" data-i18n="dash.dismiss">Dismiss</button>
+      </div>
+
+      <!-- 4 Quick KPI Summary Cards (Screen 1) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Today's Weather -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="kpi.weatherTitle">Today's Weather</span>
+            <span class="text-3xl font-extrabold text-slate-900 mt-1 block">28°C</span>
+            <span class="text-xs text-slate-600 font-medium" data-i18n="kpi.weatherDesc">Partly Cloudy</span>
+          </div>
+          <div class="p-3 bg-amber-50 rounded-2xl text-amber-500">
+            <i data-lucide="cloud-sun" class="w-8 h-8"></i>
+          </div>
+        </div>
+
+        <!-- Soil Moisture -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="kpi.moistureTitle">Soil Moisture</span>
+            <span class="text-3xl font-extrabold text-sky-600 mt-1 block">62%</span>
+            <span class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded" data-i18n="kpi.moistureBadge">Good Level</span>
+          </div>
+          <div class="p-3 bg-sky-50 rounded-2xl text-sky-600">
+            <i data-lucide="droplets" class="w-8 h-8"></i>
+          </div>
+        </div>
+
+        <!-- Next Irrigation -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="kpi.irrigationTitle">Next Irrigation</span>
+            <span class="text-xl font-extrabold text-emerald-800 mt-1 block" data-i18n="kpi.irrigationVal">Tomorrow 6 AM</span>
+            <span class="text-xs text-slate-500" data-i18n="kpi.irrigationSub">Based on SAR soil moisture</span>
+          </div>
+          <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700">
+            <i data-lucide="calendar-clock" class="w-8 h-8"></i>
+          </div>
+        </div>
+
+        <!-- Active Crops -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="kpi.cropsTitle">Active Crops</span>
+            <span class="text-lg font-extrabold text-slate-900 mt-1 block" data-i18n="kpi.cropsVal">Wheat, Mustard</span>
+            <span class="text-xs text-slate-500" data-i18n="kpi.cropsSub">2 crops in your fields (Plot 12)</span>
+          </div>
+          <div class="p-3 bg-lime-50 rounded-2xl text-lime-700">
+            <i data-lucide="wheat" class="w-8 h-8"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 7-Day Weather Forecast Section (Screen 1) -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="forecast.title">7-Day Weather Forecast</h3>
+            <p class="text-xs text-slate-500" data-i18n="forecast.sub">Localized ECMWF & IMD high-resolution micro-climate predictions</p>
+          </div>
+          <button onclick="switchTab('satellite')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer">
+            <span data-i18n="forecast.viewRadar">View Radar Map</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="forecast-container" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Crop Recommendations Section (Screen 1) -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="recom.title">Crop Recommendations</h3>
+            <p class="text-xs text-slate-500" data-i18n="recom.sub">Tailored to current soil moisture, N-P-K levels and regional weather outlook</p>
+          </div>
+          <button onclick="switchTab('fertilizers')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer">
+            <span data-i18n="recom.exploreFertilizers">Explore Organic Fertilizers</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div id="crop-recommendations-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Land Report: Soil Moisture Trend & Field Map (Screen 1) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Soil Moisture Trend Chart -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-slate-900 text-base" data-i18n="land.moistureTitle">Soil Moisture Trend (Last 7 Days)</h4>
+              <p class="text-xs text-slate-500" data-i18n="land.moistureSub">Sentinel-1 SAR Radar dielectric permittivity</p>
+            </div>
+            <span class="text-xs bg-emerald-50 text-emerald-800 font-bold px-2 py-1 rounded-md" data-i18n="land.moistureAvg">Avg: 59.7%</span>
+          </div>
+          <div class="h-56 relative w-full">
+            <canvas id="moistureTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Your Field Map Preview -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-bold text-slate-900 text-base" data-i18n="land.fieldMapTitle">Your Field Map</h4>
+              <p class="text-xs text-slate-500" data-i18n="land.fieldMapSub">Plot No. 12 (2.40 Acres) • 6 Intelligent Zones Active</p>
+            </div>
+            <button onclick="switchTab('satellite')" class="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
+              <span data-i18n="land.viewFullZones">View Full Zones</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <div class="relative h-56 rounded-2xl overflow-hidden border border-slate-200 group cursor-pointer" onclick="switchTab('satellite')">
+            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="bg-emerald-600 text-white font-bold text-xs px-2.5 py-0.5 rounded-full" data-i18n="land.fieldTag">Field 1 • 2.40 Acres</span>
+                  <p class="text-xs text-emerald-200 mt-1" data-i18n="land.fieldStressDesc">Zone B: Water Stress | Zone C: Nutrient Clue</p>
+                </div>
+                <div class="bg-white text-emerald-900 rounded-full p-2 shadow-lg">
+                  <i data-lucide="compass" class="w-5 h-5"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: SATELLITE ZONE INTELLIGENCE & HEATMAP (PDF SLIDE 6, 8, 9) -->
+    <!-- ============================================================== -->
+    <div id="tab-satellite" class="app-tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-sky-100 text-sky-800 text-xs font-bold px-2.5 py-0.5 rounded-full" data-i18n="sat.headerTag">Sentinel-2 & Sentinel-1 SAR • 10m Spatial Resolution • AI Zonal Clues</span>
+          </div>
+          <h2 class="text-2xl font-black text-slate-900" data-i18n="sat.title">Field Zone Map & Satellite Diagnostics</h2>
+          <p class="text-sm text-slate-600" data-i18n="sat.sub">"One Farm ≠ One Uniform Field" — Pinpointing exact moisture, vigour and nutrient clues across sub-plots.</p>
+        </div>
+
+        <!-- Layer Switchers -->
+        <div class="flex flex-wrap items-center gap-2 bg-slate-100 p-1.5 rounded-2xl">
+          <button data-layer="grid" onclick="switchSatelliteLayer('grid')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-sm transition cursor-pointer">
+            <span data-i18n="sat.layerGrid">Zonal Grid (A-F)</span>
+          </button>
+          <button data-layer="ndvi" onclick="switchSatelliteLayer('ndvi')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-emerald-800 transition cursor-pointer">
+            <span data-i18n="sat.layerNdvi">NDVI Vigour</span>
+          </button>
+          <button data-layer="radar" onclick="switchSatelliteLayer('radar')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-emerald-800 transition cursor-pointer">
+            <span data-i18n="sat.layerRadar">Radar SAR Moisture</span>
+          </button>
+          <button data-layer="thermal" onclick="switchSatelliteLayer('thermal')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-emerald-800 transition flex items-center gap-1 cursor-pointer">
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span data-i18n="sat.layerThermal">Thermal Heatmap</span>
+          </button>
+          <button id="btn-monsoon-radar" onclick="toggleMonsoonRadarSimulation()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 hover:bg-sky-100 border border-sky-200 transition flex items-center gap-1 cursor-pointer">
+            <i data-lucide="cloud-rain" class="w-3.5 h-3.5 text-sky-600"></i>
+            <span data-i18n="sat.layerMonsoon">Monsoon Cloud Radar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Satellite Work Area (Grid + Map + Zone Inspector) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Side: Interactive Zone Grid & Map (7 Columns) -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Slide 9 Exact 6-Zone Conceptual Matrix -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-lg" data-i18n="sat.gridTitle">Field Zone Grid (Plot No. 12)</h3>
+                <p class="text-xs text-slate-500" data-i18n="sat.gridSub">Click any zone below to view instant agronomic diagnosis and next action step</p>
+              </div>
+              <span class="text-xs text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-md" data-i18n="sat.subZonesBadge">6 Sub-Zones</span>
+            </div>
+
+            <div id="field-zones-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+              <!-- Rendered via JavaScript -->
+            </div>
+
+            <!-- Legend Bar -->
+            <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                <span data-i18n="sat.legendOptimal">Optimal Vigour</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-sky-600"></span>
+                <span data-i18n="sat.legendWaterStress">Water Stress</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                <span data-i18n="sat.legendNutrient">Nutrient Clue</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+                <span data-i18n="sat.legendCropStress">Crop Stress / Pest</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-cyan-600"></span>
+                <span data-i18n="sat.legendWaterlogged">Waterlogged</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real Satellite Imagery Leaflet Map Container -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm relative">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h4 class="font-bold text-slate-900 text-base" data-i18n="sat.orthoTitle">Live Satellite Orthomosaic (Varanasi Farmland)</h4>
+                <p class="text-xs text-slate-500" data-i18n="sat.orthoSub">High-resolution Copernicus Sentinel-2 Optical & Sentinel-1 SAR Radar</p>
+              </div>
+              <span class="text-xs bg-slate-100 text-slate-700 font-mono px-2 py-1 rounded" data-i18n="sat.coords">25.2755°N, 82.9750°E</span>
+            </div>
+            
+            <div class="relative rounded-2xl overflow-hidden border border-slate-200">
+              <div id="leaflet-satellite-map" class="h-72 w-full shadow-inner"></div>
+              
+              <!-- Simulated Monsoon Cloud Layer (Slide 8 Feature) -->
+              <div id="monsoon-cloud-overlay" class="hidden absolute inset-0 bg-slate-700/60 backdrop-blur-sm pointer-events-none flex flex-col items-center justify-center text-white text-center p-4">
+                <div class="bg-slate-950/80 px-4 py-2 rounded-2xl border border-sky-400/50 shadow-2xl flex items-center gap-3">
+                  <span class="w-3 h-3 rounded-full bg-sky-400 animate-ping"></span>
+                  <div class="text-left">
+                    <span class="text-xs font-bold text-sky-300 block" data-i18n="sat.sarActive">Sentinel-1 C-Band Radar (SAR) Active</span>
+                    <span class="text-[11px] text-slate-300" data-i18n="sat.sarDesc">Piercing 100% Monsoon Cloud Cover • Moisture Radar Beam 5.405 GHz</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monsoon Explainer Note -->
+            <div id="monsoon-radar-note" class="hidden mt-3 p-3 bg-sky-50 border border-sky-200 rounded-xl text-xs text-sky-950 flex items-start gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-sky-600 shrink-0 mt-0.5"></i>
+              <p>
+                <strong>Hackathon Architecture (Slide 8):</strong> Optical cameras (Sentinel-2) are blinded by dense monsoon clouds during Kharif season. Krṣiveda switches to active SAR microwaves to calculate moisture continuously without weather disruptions.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Side: Zone Inspector & Action Advisory (5 Columns) -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm sticky top-24">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block" data-i18n="sat.diagTitle">Zone Diagnostics</span>
+                <h3 id="selected-zone-title" class="text-xl font-black text-slate-900">Zone B (North-Central)</h3>
+              </div>
+              <span id="selected-zone-status" class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
+                Moisture Stress
+              </span>
+            </div>
+
+            <p id="selected-zone-crop" class="text-xs font-medium text-slate-500 mt-2">Wheat (HD-2967) • Stage: Tillering</p>
+
+            <!-- Metrics Matrix -->
+            <div class="grid grid-cols-2 gap-3 my-4">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block" data-i18n="sat.ndviLabel">Canopy NDVI</span>
+                <span id="selected-zone-ndvi" class="text-lg font-black text-slate-900">0.61</span>
+                <span class="text-[10px] text-slate-500 block" data-i18n="sat.ndviSub">Band 8 / Band 4 ratio</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block" data-i18n="sat.moistureLabel">Soil Moisture (SAR)</span>
+                <span id="selected-zone-moisture" class="text-lg font-black text-sky-700">34% (Low)</span>
+                <span class="text-[10px] text-slate-500 block" data-i18n="sat.moistureSub">Radar dielectric permittivity</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block" data-i18n="sat.tempLabel">Canopy Surface Temp</span>
+                <span id="selected-zone-temp" class="text-lg font-black text-amber-700">34.2°C</span>
+                <span class="text-[10px] text-slate-500 block" data-i18n="sat.tempSub">Thermal stress anomaly</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 uppercase font-bold block" data-i18n="sat.nutrientLabel">Nutrient Clue</span>
+                <span id="selected-zone-nutrients" class="text-xs font-bold text-slate-800 block mt-1">Adequate N-P-K</span>
+                <span class="text-[10px] text-slate-500 block">Lab validation suggested</span>
+              </div>
+            </div>
+
+            <!-- Satellite Detection Evidence Note (PDF Slide 8) -->
+            <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-3.5 my-4 text-xs text-blue-900">
+              <div class="flex items-center gap-1.5 font-bold mb-1">
+                <i data-lucide="satellite" class="w-4 h-4 text-blue-600"></i>
+                <span data-i18n="sat.evidenceTitle">Space Sensor Evidence</span>
+              </div>
+              <p id="selected-zone-satellite-evidence" class="text-blue-800 text-[11px] leading-relaxed">
+                Sentinel-1 SAR backscatter shows dry topsoil dielectric drop; thermal anomaly +4.2°C.
+              </p>
+            </div>
+
+            <!-- Actionable Next Step (PDF Slide 9) -->
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 my-4">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-900 mb-1">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                <span data-i18n="sat.actionTitle">Actionable Next Step for Farmer</span>
+              </div>
+              <p id="selected-zone-action" class="text-sm font-semibold text-emerald-950">
+                Check irrigation canals/drips. Schedule light watering tomorrow morning 6 AM.
+              </p>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="space-y-2 pt-2">
+              <button onclick="showToast(currentLanguage === 'hi' ? 'किसान द्वारा ज़ोन का निरीक्षण पूर्ण चिह्नित किया गया।' : 'Zone marked as inspected by farmer.')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-3 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span data-i18n="sat.btnInspected">Mark as Inspected</span>
+              </button>
+
+              <button onclick="openSoilTestModal()" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="test-tube" class="w-4 h-4 text-amber-700"></i>
+                <span data-i18n="sat.btnDispatchSoil">Dispatch Soil Sample Pickup for this Zone</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Live Thermal Field Map Section (Screen 4 exact match) -->
+      <div id="thermal-overlay-panel" class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-amber-100 text-amber-900 font-bold text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1" data-i18n="thermal.premiumBadge">
+                ★ Kṛṣiveda Premium
+              </span>
+              <span class="text-xs text-slate-500">Field: Plot No. 12, Varanasi</span>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 mt-1" data-i18n="thermal.title">Live Thermal Field Map</h3>
+            <p class="text-xs text-slate-600" data-i18n="thermal.sub">Spot dry, overheated and waterlogged patches before crops show visible stress.</p>
+          </div>
+
+          <button id="btn-preview-subscriber" onclick="toggleThermalPreview()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs px-4 py-2 rounded-xl transition cursor-pointer" data-i18n="thermal.btnPreview">
+            Preview as subscriber
+          </button>
+        </div>
+
+        <!-- Heatmap Gradient Ramp -->
+        <div class="space-y-1.5">
+          <div class="thermal-ramp shadow-inner"></div>
+          <div class="flex justify-between text-[11px] font-bold text-slate-600">
+            <span data-i18n="thermal.rampCool">18°C Cool (Waterlogged)</span>
+            <span data-i18n="thermal.rampOptimal">30°C Optimal</span>
+            <span data-i18n="thermal.rampHot">42°C Hot (Severe Stress)</span>
+          </div>
+        </div>
+
+        <!-- Locked Subscriber Overlay (Screen 4) -->
+        <div id="thermal-locked-card" class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white p-8 sm:p-12 text-center shadow-lg">
+          <div class="max-w-md mx-auto space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md mx-auto flex items-center justify-center text-amber-400">
+              <i data-lucide="lock" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-2xl font-black" data-i18n="thermal.lockTitle">Unlock live thermal imaging</h4>
+            <p class="text-xs sm:text-sm text-emerald-100" data-i18n="thermal.lockSub">
+              See surface temperature across your whole plot, refreshed every satellite pass with heat-stress alerts.
+            </p>
+            <button onclick="toggleThermalPreview()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm px-6 py-3 rounded-2xl shadow-lg transition cursor-pointer" data-i18n="thermal.btnPlans">
+              Preview / View Plans
+            </button>
+          </div>
+        </div>
+
+        <!-- Unlocked Thermal Insights (Revealed on preview) -->
+        <div id="thermal-unlocked-data" class="hidden space-y-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+              <span class="text-xs text-emerald-800 font-bold block" data-i18n="thermal.avgTemp">Average Surface Temp</span>
+              <span class="text-2xl font-black text-emerald-950 mt-1 block">28.4°C</span>
+              <span class="text-[11px] text-emerald-700" data-i18n="thermal.avgTempDesc">Healthy vegetative balance</span>
+            </div>
+            <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
+              <span class="text-xs text-rose-800 font-bold block" data-i18n="thermal.hottest">Hottest Zone</span>
+              <span class="text-2xl font-black text-rose-900 mt-1 block">34.2°C (Zone B)</span>
+              <span class="text-[11px] text-rose-700" data-i18n="thermal.hottestDesc">Moisture deficit detected</span>
+            </div>
+            <div class="bg-cyan-50 p-4 rounded-2xl border border-cyan-100">
+              <span class="text-xs text-cyan-800 font-bold block" data-i18n="thermal.coolest">Coolest Zone</span>
+              <span class="text-2xl font-black text-cyan-900 mt-1 block">22.4°C (Zone F)</span>
+              <span class="text-[11px] text-cyan-700" data-i18n="thermal.coolestDesc">High standing moisture</span>
+            </div>
+            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100">
+              <span class="text-xs text-amber-800 font-bold block" data-i18n="thermal.stressArea">Heat-Stress Area</span>
+              <span class="text-2xl font-black text-amber-900 mt-1 block">0.38 Acres</span>
+              <span class="text-[11px] text-amber-700" data-i18n="thermal.stressAreaDesc">Requires targeted irrigation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Tiers (Screen 4) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase" data-i18n="thermal.planMonthly">Monthly</span>
+              <div class="my-2">
+                <span class="text-3xl font-black text-slate-900">₹299</span>
+                <span class="text-xs text-slate-500">/ month</span>
+              </div>
+              <ul class="text-xs text-slate-600 space-y-1.5 my-3">
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Live thermal map</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Heat-stress alerts</li>
+              </ul>
+            </div>
+            <button onclick="handleSubscribePlan('Monthly Plan', 299)" class="w-full bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs py-2.5 rounded-xl transition cursor-pointer" data-i18n="thermal.subscribe">Subscribe (Demo)</button>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border-2 border-emerald-600 shadow-md flex flex-col justify-between relative">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full" data-i18n="thermal.popular">POPULAR</span>
+            <div>
+              <span class="text-xs font-bold text-emerald-800 uppercase" data-i18n="thermal.planSeasonal">Seasonal</span>
+              <div class="my-2">
+                <span class="text-3xl font-black text-emerald-900">₹999</span>
+                <span class="text-xs text-slate-500">/ crop season</span>
+              </div>
+              <ul class="text-xs text-slate-600 space-y-1.5 my-3">
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Everything in Monthly</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> 7-day thermal history</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Irrigation suggestions</li>
+              </ul>
+            </div>
+            <button onclick="handleSubscribePlan('Seasonal Plan', 999)" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 rounded-xl shadow transition cursor-pointer" data-i18n="thermal.subscribe">Subscribe (Demo)</button>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase" data-i18n="thermal.planYearly">Yearly</span>
+              <div class="my-2">
+                <span class="text-3xl font-black text-slate-900">₹2,499</span>
+                <span class="text-xs text-slate-500">/ year</span>
+              </div>
+              <ul class="text-xs text-slate-600 space-y-1.5 my-3">
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Everything in Seasonal</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Up to 3 plots coverage</li>
+                <li class="flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Full soil report integration</li>
+              </ul>
+            </div>
+            <button onclick="handleSubscribePlan('Yearly Plan', 2499)" class="w-full bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs py-2.5 rounded-xl transition cursor-pointer" data-i18n="thermal.subscribe">Subscribe (Demo)</button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================= -->
+    <!-- TAB 3: SOIL HEALTH REPORT (MATCHES SCREEN 3) -->
+    <!-- ============================================= -->
+    <div id="tab-soil-report" class="app-tab-content hidden space-y-6">
+      
+      <!-- Report Header -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full" data-i18n="soil.testedBadge">Plot No. 12, Varanasi • Tested on 05 Oct 2026</span>
+          <h2 class="text-2xl font-black text-slate-900 mt-1" data-i18n="soil.title">Soil Health Report</h2>
+          <p class="text-xs text-slate-500" data-i18n="soil.sub">Laboratory chemical composition & satellite-guided soil replenishment plan</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="openPrintSoilCardModal()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-3 rounded-2xl shadow-sm transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span data-i18n="soil.btnCard">Soil Health Card (PDF)</span>
+          </button>
+          <button onclick="openSoilTestModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-sm transition flex items-center gap-2 active:scale-95">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span data-i18n="soil.btnBook">Book Next Soil Test</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Row: Soil Score Circular Gauge + Chemical Composition (Screen 3) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Soil Health Score Card (5 Cols) -->
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <h4 class="font-extrabold text-slate-900 text-base" data-i18n="soil.scoreTitle">Soil Health Score</h4>
+            <p class="text-xs text-slate-500" data-i18n="soil.scoreSub">Holistic index calculated from N-P-K, pH & Carbon</p>
+          </div>
+
+          <div class="my-6 flex flex-col items-center justify-center">
+            <!-- Circular Gauge -->
+            <div class="relative w-44 h-44 flex items-center justify-center">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" class="stroke-slate-100" stroke-width="10" fill="transparent" />
+                <circle cx="50" cy="50" r="40" class="stroke-emerald-600 transition-all duration-1000" stroke-width="10" stroke-dasharray="251.2" stroke-dashoffset="55" stroke-linecap="round" fill="transparent" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span class="text-4xl font-black text-slate-900">78<span class="text-base text-slate-400 font-normal">/100</span></span>
+                <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider" data-i18n="kpi.moistureBadge">Good</span>
+              </div>
+            </div>
+            
+            <div class="text-center mt-3 max-w-xs">
+              <p class="text-sm font-bold text-slate-800" data-i18n="soil.scoreVerdict">Your soil is in good condition! With targeted phosphorus boosts and reduced urea, yields can improve by 18%.</p>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+            <span data-i18n="soil.texture">Soil Texture: Alluvial Loam</span>
+            <span data-i18n="soil.microbial">Microbial Activity: Healthy</span>
+          </div>
+        </div>
+
+        <!-- Chemical Composition Table (7 Cols) -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-extrabold text-slate-900 text-base" data-i18n="soil.chemTitle">Chemical Composition</h4>
+              <p class="text-xs text-slate-500" data-i18n="soil.chemSub">Lab calibrated test values vs ideal agronomic ranges</p>
+            </div>
+            <span class="text-xs text-slate-400" data-i18n="soil.chemUnit">Standard Test Unit: kg/ha</span>
+          </div>
+
+          <div id="soil-chemical-rows" class="space-y-1">
+            <!-- Rendered by JavaScript -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Preservation Recommendations & 6-Month Soil Trend (Screen 3) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Preservation Recommendations -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div>
+            <h4 class="font-extrabold text-slate-900 text-base" data-i18n="soil.presTitle">Preservation Recommendations</h4>
+            <p class="text-xs text-slate-500" data-i18n="soil.presSub">Actionable agronomic advice to rehabilitate deficient zones</p>
+          </div>
+
+          <div id="soil-preservation-list" class="space-y-3">
+            <!-- Rendered by JavaScript -->
+          </div>
+
+          <div class="pt-2">
+            <button onclick="switchTab('fertilizers'); setFertilizerMode('buy'); renderFertilizers('vermicompost');" class="w-full bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+              <span data-i18n="soil.orderVermicompost">Order Recommended Vermicompost for Zone C</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 6-Month Soil Trend Chart -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-extrabold text-slate-900 text-base" data-i18n="soil.trendTitle">Soil Trend</h4>
+              <p class="text-xs text-slate-500" data-i18n="soil.trendSub">Score evolution over last 6 months (Apr 2026 – Sep 2026)</p>
+            </div>
+            <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-1 rounded" data-i18n="soil.trendGain">+26 pts Gain</span>
+          </div>
+
+          <div class="h-60 relative w-full">
+            <canvas id="soilTrendChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Book Soil Test Action Callout (Screen 3) -->
+      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-emerald-300 shrink-0">
+            <i data-lucide="flask-round" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold" data-i18n="soil.calloutTitle">Book your next soil test</h4>
+            <p class="text-xs text-emerald-100 mt-0.5" data-i18n="soil.calloutSub">Regular soil testing helps you make better decisions for higher yields and healthier tomorrow.</p>
+          </div>
+        </div>
+        <button onclick="openSoilTestModal()" class="bg-white text-emerald-950 hover:bg-emerald-50 font-extrabold text-xs px-6 py-3 rounded-2xl shadow transition whitespace-nowrap active:scale-95" data-i18n="soil.calloutBtn">
+          Book Now →
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 4: NATURAL FERTILIZERS STORE (BUY & SELL P2P)   -->
+    <!-- ==================================================== -->
+    <div id="tab-fertilizers" class="app-tab-content hidden space-y-6">
+      
+      <!-- Header Banner with Dual Buy / Sell Mode Toggle -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full" data-i18n="fert.badge">Farmer-to-Farmer (P2P) Circular Economy</span>
+            <span class="text-xs text-slate-500" data-i18n="fert.badgeSub">Farmers are Sellers & Buyers • Zero middlemen</span>
+          </div>
+          <h2 class="text-2xl font-black text-slate-900" data-i18n="fert.title">Natural Fertilizers</h2>
+          <p class="text-xs text-slate-600" data-i18n="fert.sub">Buy pure lab-tested organic manure from neighboring farmers, or sell your own farm's compost to earn extra income.</p>
+        </div>
+
+        <!-- Buy vs Sell Mode Switcher -->
+        <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl">
+          <button id="btn-fertilizer-buy-mode" onclick="setFertilizerMode('buy')" class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold bg-emerald-800 text-white shadow-sm transition flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            <span data-i18n="fert.btnBuyMode">Buy from Farmers</span>
+          </button>
+          <button id="btn-fertilizer-sell-mode" onclick="setFertilizerMode('sell')" class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold bg-white text-slate-700 hover:text-emerald-800 border border-slate-200 transition flex items-center gap-2">
+            <i data-lucide="store" class="w-4 h-4 text-amber-600"></i>
+            <span data-i18n="fert.btnSellMode">Sell / My Produce</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 1: BUY FROM FARMERS (MARKETPLACE)     -->
+      <!-- ========================================== -->
+      <div id="fertilizer-buy-view" class="space-y-6">
+        
+        <!-- Search & Category Filters (Screen 2) -->
+        <div class="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+          
+          <!-- Search bar -->
+          <div class="relative">
+            <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input id="fertilizer-search" type="text" data-i18n-placeholder="fert.searchPlaceholder" placeholder="Search farmer fertilizers, e.g. vermicompost, cow dung, neem cake, Suresh Yadav..." 
+                   class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition">
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button data-category="all" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm transition" data-i18n="fert.catAll">All</button>
+            <button data-category="compost" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 hover:bg-emerald-200 transition" data-i18n="fert.catCompost">Compost</button>
+            <button data-category="vermicompost" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 hover:bg-emerald-200 transition" data-i18n="fert.catVermicompost">Vermicompost</button>
+            <button data-category="cow-dung" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 hover:bg-emerald-200 transition" data-i18n="fert.catCowDung">Cow Dung</button>
+            <button data-category="bio-fertilizer" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 hover:bg-emerald-200 transition" data-i18n="fert.catBio">Bio-fertilizer</button>
+          </div>
+
+        </div>
+
+        <!-- Lab Verified & Local Community Assurance Banner -->
+        <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-emerald-100 rounded-xl text-emerald-800">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="font-extrabold text-sm block" data-i18n="fert.bannerTitle">100% Farmer-Produced & Lab-Calibrated Organic Inputs</span>
+              <span class="text-emerald-700" data-i18n="fert.bannerSub">Direct from local farms — zero middlemen, fair prices, village cart delivery</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 font-semibold text-emerald-800">
+            <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i>
+            <span data-i18n="fert.bannerDelivery">Local Village Cart Delivery (₹50)</span>
+          </div>
+        </div>
+
+        <!-- Product Catalog Grid (Populated with Farmer Sellers) -->
+        <div id="fertilizer-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Rendered by JavaScript -->
+        </div>
+
+        <!-- Sell Banner Trigger -->
+        <div class="bg-gradient-to-r from-amber-900 via-amber-800 to-emerald-900 rounded-3xl p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div class="space-y-2">
+            <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded tracking-wide uppercase" data-i18n="fert.sellCalloutTag">Farmer Producer Earnings</span>
+            <h3 class="text-2xl font-black" data-i18n="fert.sellCalloutTitle">Have extra cow manure or vermicompost?</h3>
+            <p class="text-xs sm:text-sm text-amber-100 max-w-xl" data-i18n="fert.sellCalloutSub">
+              Earn ₹8,000 – ₹20,000 extra per season. List your organic produce for free, get ASSAI test support, and receive direct payments from fellow farmers.
+            </p>
+          </div>
+          <button onclick="setFertilizerMode('sell')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg transition whitespace-nowrap active:scale-95" data-i18n="fert.sellCalloutBtn">
+            Open My Farmer Store →
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: SELL / MY FARM STORE (SELLER PORTAL) -->
+      <!-- ========================================== -->
+      <div id="fertilizer-sell-view" class="hidden space-y-6">
+        
+        <!-- Seller Store Performance Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="seller.kpiSales">Total Sales</span>
+              <span id="seller-kpi-earnings" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 mt-1 block">₹14,200</span>
+              <span class="text-xs text-emerald-600 font-semibold" data-i18n="seller.kpiSalesSub">Direct to Bank / Kisan UPI</span>
+            </div>
+            <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700">
+              <i data-lucide="wallet" class="w-8 h-8"></i>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="seller.kpiListings">Active Listings</span>
+              <span id="seller-kpi-active-listings" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 block">2 Products</span>
+              <span class="text-xs text-slate-500" data-i18n="seller.kpiListingsSub">Live on village marketplace</span>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-2xl text-amber-600">
+              <i data-lucide="package" class="w-8 h-8"></i>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="seller.kpiStock">Stock Available</span>
+              <span id="seller-kpi-stock" class="text-2xl sm:text-3xl font-extrabold text-sky-700 mt-1 block">650 kg</span>
+              <span class="text-xs text-slate-500" data-i18n="seller.kpiStockSub">Ready for pickup at Plot 12</span>
+            </div>
+            <div class="p-3 bg-sky-50 rounded-2xl text-sky-600">
+              <i data-lucide="boxes" class="w-8 h-8"></i>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" data-i18n="seller.kpiRating">Farmer Rating</span>
+              <span class="text-2xl sm:text-3xl font-extrabold text-amber-500 mt-1 block">4.9 ★</span>
+              <span class="text-xs text-slate-500" data-i18n="seller.kpiRatingSub">51 verified buyer reviews</span>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-2xl text-amber-500">
+              <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Add Listing Action Bar -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="seller.myListingsTitle">My Farm Listings</h3>
+            <p class="text-xs text-slate-500" data-i18n="seller.myListingsSub">Manage your farm's compost inventory, change prices, or list new organic batches.</p>
+          </div>
+          <button onclick="openSellModal()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 active:scale-95">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            <span data-i18n="seller.btnAddNew">+ List New Fertilizer</span>
+          </button>
+        </div>
+
+        <!-- Farmer's Own Active Listings Grid -->
+        <div id="farmer-my-listings" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Rendered by JavaScript -->
+        </div>
+
+        <!-- Incoming Orders from Fellow Farmers Table -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-extrabold text-slate-900 text-base" data-i18n="seller.ordersTitle">Incoming Buyer Orders</h4>
+              <p class="text-xs text-slate-500" data-i18n="seller.ordersSub">Local farmers in your village cluster requesting manure pickup or delivery</p>
+            </div>
+            <span class="text-xs bg-emerald-50 text-emerald-800 font-bold px-2.5 py-1 rounded-md" data-i18n="seller.ordersBadge">3 Total Orders</span>
+          </div>
+
+          <div id="farmer-incoming-orders" class="space-y-3">
+            <!-- Rendered by JavaScript -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 5: CHANNELS & ADVISORY (PDF SLIDE 4, 5, 8)       -->
+    <!-- ==================================================== -->
+    <div id="channels-tab-wrapper">
+      <div id="tab-channels" class="app-tab-content hidden space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-emerald-100 text-emerald-900 text-xs font-bold px-2.5 py-0.5 rounded-full" data-i18n="adv.badge">Multi-Channel Delivery</span>
+            <span class="text-xs text-slate-500" data-i18n="adv.badgeSub">Reaching smallholders beyond smartphones</span>
+          </div>
+          <h2 class="text-2xl font-black text-slate-900" data-i18n="adv.title">Farmer Advisory Channels: Voice, SMS & Extension</h2>
+          <p class="text-xs sm:text-sm text-slate-600" data-i18n="adv.sub">Built for Indian farm realities: regional language voice audio, feature phone SMS, and KVK extension bridge.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left: Voice Advisory Simulation (6 Cols) -->
+          <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700">
+                <i data-lucide="radio" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-base" data-i18n="adv.voiceTitle">Local-Language Voice Advisory (IVR / Audio)</h4>
+                <p class="text-xs text-slate-500" data-i18n="adv.voiceSub">Audio playback for low-literacy farmers (Hindi / Vernacular)</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs text-slate-700 space-y-2">
+              <p class="font-mono text-emerald-900">
+                <strong>[Audio Script - Plot 12]:</strong> "नमस्कार रमेश जी। कृषिवेद उपग्रह रिपोर्ट के अनुसार, ज़ोन बी में नमी की कमी है। कल सुबह छह बजे हल्की सिंचाई करें। ज़ोन सी में फास्फोरस की कमी के संकेत हैं, जैविक वर्मीकंपोस्ट डालें।"
+              </p>
+            </div>
+
+            <button onclick="toggleVoiceAdvisory()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+              <i data-lucide="volume-2" class="w-4 h-4"></i>
+              <span data-i18n="adv.voiceBtn">Play Vernacular Audio in Browser</span>
+            </button>
+          </div>
+
+          <!-- Right: Mobile SMS Simulator (6 Cols) -->
+          <div class="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="p-3 bg-sky-50 rounded-2xl text-sky-600">
+                <i data-lucide="message-square" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-base" data-i18n="adv.smsTitle">Vernacular SMS / WhatsApp Alert Dispatcher</h4>
+                <p class="text-xs text-slate-500" data-i18n="adv.smsSub">Automated pushes to basic feature phones</p>
+              </div>
+            </div>
+
+            <!-- Simulated Mobile Screen -->
+            <div class="bg-slate-900 rounded-2xl p-4 text-white text-xs space-y-3 font-mono shadow-inner border border-slate-800">
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>SIM 1 • BSNL 4G</span>
+                <span>Today 11:00 AM</span>
+              </div>
+              <div class="bg-emerald-900/60 border border-emerald-700/50 p-3 rounded-xl space-y-1">
+                <span class="text-amber-300 font-bold">[KRSIVEDA-AGRI]</span>
+                <p class="text-slate-200">
+                  Plot 12 Alert: Zone B moisture low. Water tomorrow 6 AM. Zone C requires soil test before urea application. Heavy rain in 48 hrs.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <input id="sms-input-phone" type="text" value="+91 98765 43210" class="flex-grow px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+              <button onclick="simulateSendSMS()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition" data-i18n="adv.smsBtn">
+                Simulate Push
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Extension Worker Priority Queue Table (PDF Slide 4 & 10) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-extrabold text-slate-900 text-base" data-i18n="adv.extTitle">Extension Worker & Agronomist Priority Dispatch</h4>
+              <p class="text-xs text-slate-500" data-i18n="adv.extSub">Zone-level anomaly flags help local extension workers prioritize physical field visits</p>
+            </div>
+            <span class="text-xs bg-amber-50 text-amber-900 font-bold px-2.5 py-1 rounded-md" data-i18n="adv.extBadge">Varanasi Cluster: 3 Actionable Visits</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <tr>
+                  <th class="p-3" data-i18n="adv.colFarmer">Farmer & Plot</th>
+                  <th class="p-3" data-i18n="adv.colHolding">Holding</th>
+                  <th class="p-3" data-i18n="adv.colFlag">Satellite Flag</th>
+                  <th class="p-3" data-i18n="adv.colTask">Recommended Extension Task</th>
+                  <th class="p-3" data-i18n="adv.colStatus">Status</th>
+                  <th class="p-3 text-right" data-i18n="adv.colAction">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td class="p-3 font-bold text-slate-900">Ramesh Yadav (Plot 12)</td>
+                  <td class="p-3">2.4 acres</td>
+                  <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Zone C: Nutrient Clue</span></td>
+                  <td class="p-3">Collect soil sample; check for P deficiency</td>
+                  <td class="p-3"><span class="text-amber-600 font-semibold">Pending Visit</span></td>
+                  <td class="p-3 text-right">
+                    <button onclick="openSoilTestModal()" class="text-emerald-700 font-bold hover:underline">Assign Mitr</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-slate-900">Sunita Devi (Plot 04)</td>
+                  <td class="p-3">1.2 acres</td>
+                  <td class="p-3"><span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-semibold">Zone A: Vigour Drop</span></td>
+                  <td class="p-3">Scout for pest cluster / stem borer</td>
+                  <td class="p-3"><span class="text-rose-600 font-semibold">Urgent</span></td>
+                  <td class="p-3 text-right">
+                    <button onclick="showToast('Alert dispatched to KVK scout for Sunita Devi!')" class="text-emerald-700 font-bold hover:underline">Dispatch Scout</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-bold text-slate-900">Rajesh Patel (Plot 19)</td>
+                  <td class="p-3">1.8 acres</td>
+                  <td class="p-3"><span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded font-semibold">Zone D: Water Deficit</span></td>
+                  <td class="p-3">Verify canal water allocation before Friday</td>
+                  <td class="p-3"><span class="text-emerald-600 font-semibold">Scheduled</span></td>
+                  <td class="p-3 text-right">
+                    <button onclick="showToast('Visit confirmed for Rajesh Patel.')" class="text-emerald-700 font-bold hover:underline">View Map</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 6: VISION, HACKATHON & SDGS (PDF SLIDE 1, 2, 3)  -->
+    <!-- ==================================================== -->
+    <div id="tab-impact" class="app-tab-content hidden space-y-6">
+      
+      <!-- Hackathon Pitch Banner (Slide 1) -->
+      <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-8 text-white shadow-xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="bg-amber-500 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded uppercase">Dolphin Tank India 2026</span>
+            <span class="text-emerald-300 text-xs">Idea to Social Impact</span>
+          </div>
+          <span class="text-xs text-slate-300 font-mono">Team Gammacoders</span>
+        </div>
+
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+          <span data-i18n="vis.tagline">Agriculture Service Through Satellite</span><br>
+          <span class="text-emerald-300 font-light text-2xl sm:text-3xl" data-i18n="vis.taglineSub">From Space Data to Smarter Decisions on Every Farm</span>
+        </h2>
+
+        <p class="text-slate-300 text-sm max-w-2xl leading-relaxed" data-i18n="vis.body">
+          Higher yields. A stronger India. Bringing the power of space technology to every farmer’s field. Satellite Data + AI = Smarter Farming.
+        </p>
+
+        <!-- Problem Statement Box (Slide 2) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
+          <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+            <span class="text-3xl font-black text-amber-400">1.08 ha</span>
+            <p class="text-xs text-slate-300 mt-1" data-i18n="vis.stat1Desc">Average operational holding in India</p>
+          </div>
+          <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-sm">
+            <span class="text-3xl font-black text-emerald-400">~86%</span>
+            <p class="text-xs text-slate-300 mt-1" data-i18n="vis.stat2Desc">Of holdings belong to small and marginal farmers</p>
+          </div>
+        </div>
+        <p class="text-xs font-bold text-amber-300 tracking-wider" data-i18n="vis.mantra">CORE MANTRA: ONE FARM ≠ ONE UNIFORM FIELD</p>
+      </div>
+
+      <!-- UN SDG Alignment (Slide 3) -->
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-xl font-black text-slate-900" data-i18n="vis.sdgTitle">United Nations Sustainable Development Goals (SDG) Alignment</h3>
+          <p class="text-xs text-slate-500" data-i18n="vis.sdgSub">Measurable impact metrics designed for smallholder empowerment</p>
+        </div>
+
+        <div id="sdg-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Rendered by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Technology Pipeline (Slide 5 & 8) -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <h3 class="text-xl font-black text-slate-900" data-i18n="vis.pipeTitle">A Simple Pipeline from Satellite Observation to Farmer Action</h3>
+          <p class="text-xs text-slate-500" data-i18n="vis.pipeSub">Space + AI + Field Knowledge, delivered through channels farmers already use</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <span class="w-7 h-7 rounded-full bg-emerald-700 text-white font-black text-xs flex items-center justify-center mb-2">1</span>
+            <h5 class="font-bold text-slate-900 text-sm">OBSERVE</h5>
+            <p class="text-xs text-slate-600 mt-1">Satellite imagery (Sentinel-2 & SAR) + weather + crop calendar. Track vegetation & surface moisture.</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <span class="w-7 h-7 rounded-full bg-emerald-700 text-white font-black text-xs flex items-center justify-center mb-2">2</span>
+            <h5 class="font-bold text-slate-900 text-sm">ANALYSE</h5>
+            <p class="text-xs text-slate-600 mt-1">AI models + field history. Create zone heatmaps and flag unusual stress anomalies for review.</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <span class="w-7 h-7 rounded-full bg-emerald-700 text-white font-black text-xs flex items-center justify-center mb-2">3</span>
+            <h5 class="font-bold text-slate-900 text-sm">VALIDATE</h5>
+            <p class="text-xs text-slate-600 mt-1">Soil test + local agronomy. Confirm nutrient needs with lab tests before recommending a chemical dose.</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+            <span class="w-7 h-7 rounded-full bg-emerald-700 text-white font-black text-xs flex items-center justify-center mb-2">4</span>
+            <h5 class="font-bold text-slate-900 text-sm">ADVISE</h5>
+            <p class="text-xs text-slate-600 mt-1">Mobile app / SMS / local-language voice. Tell the farmer what to check, where, and when.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap & Vision (Slide 13 & 14) -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-xl font-black text-slate-900" data-i18n="vis.roadTitle">Implementation Roadmap & Next Steps</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+            <span class="text-xs font-black text-emerald-800 uppercase">90 Days</span>
+            <h5 class="font-bold text-slate-900 text-sm mt-1">Build MVP</h5>
+            <p class="text-xs text-slate-600 mt-1">Field zone map, advisory flow, 1 crop & 1 district (Varanasi pilot), local-language delivery.</p>
+          </div>
+          <div class="p-4 bg-teal-50 rounded-2xl border border-teal-100">
+            <span class="text-xs font-black text-teal-800 uppercase">180 Days</span>
+            <h5 class="font-bold text-slate-900 text-sm mt-1">Run The Pilot</h5>
+            <p class="text-xs text-slate-600 mt-1">Onboard farmers via extension workers, validate against soil tests & field visits, measure impact.</p>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+            <span class="text-xs font-black text-amber-800 uppercase">365 Days</span>
+            <h5 class="font-bold text-slate-900 text-sm mt-1">Improve & Scale</h5>
+            <p class="text-xs text-slate-600 mt-1">Extend to more crops and districts, build FPO partner-led rollout across Uttar Pradesh & Bihar.</p>
+          </div>
+        </div>
+
+        <div class="text-center pt-6 border-t border-slate-100">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">SEE MORE. WASTE LESS. GROW BETTER.</p>
+          <p class="text-slate-800 font-serif italic text-sm mt-1">"Ideas can create big impact when technology, purpose, and people come together."</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- SLIDE-OVER SHOPPING CART DRAWER (SCREEN 2) -->
+  <!-- ========================================== -->
+  <div id="cart-drawer" class="fixed inset-y-0 right-0 max-w-full w-full sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between border-l border-slate-200">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shopping-cart" class="w-5 h-5 text-emerald-700"></i>
+        <h3 class="font-black text-slate-900 text-base" data-i18n="cart.title">Your Cart</h3>
+      </div>
+      <button onclick="toggleCartDrawer()" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div id="cart-items-list" class="flex-grow p-5 overflow-y-auto space-y-3">
+      <!-- Populated dynamically -->
+    </div>
+
+    <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
+      <div class="space-y-1 text-xs">
+        <div class="flex justify-between text-slate-500">
+          <span data-i18n="cart.subtotal">Subtotal</span>
+          <span id="cart-subtotal" class="font-bold text-slate-800">₹0</span>
+        </div>
+        <div class="flex justify-between text-slate-500">
+          <span data-i18n="cart.delivery">Village Doorstep Delivery</span>
+          <span class="font-bold text-slate-800">₹50</span>
+        </div>
+        <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+          <span data-i18n="cart.total">Total</span>
+          <span id="cart-total" class="text-emerald-700">₹0</span>
+        </div>
+      </div>
+
+      <button onclick="checkoutCart()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2">
+        <i data-lucide="credit-card" class="w-4 h-4"></i>
+        <span data-i18n="cart.checkoutBtn">Place Order (Kisan UPI / Cash)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: BOOK SOIL TEST (SCREEN 3)           -->
+  <!-- ========================================== -->
+  <div id="soil-test-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-in fade-in duration-200">
+      <button onclick="closeSoilTestModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-700">
+          <i data-lucide="flask-conical" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="font-black text-slate-900 text-lg">Book Soil Test / मिट्टी जाँच</h3>
+          <p class="text-xs text-slate-500">Certified N-P-K & Organic Carbon Lab Test</p>
+        </div>
+      </div>
+
+      <form onsubmit="submitSoilTestBooking(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Select Farm Plot</label>
+          <select class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <option>Plot No. 12 (Varanasi - 2.4 Acres)</option>
+            <option>Plot No. 04 (Varanasi - 1.2 Acres)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Target Zone Priority</label>
+          <select class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <option>Zone C (Suspected Phosphorus Deficit)</option>
+            <option>Zone E (Canopy Stress Flag)</option>
+            <option>All Zones Composite Sample</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Collection Preferred Date</label>
+          <input type="date" required value="2026-10-15" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Farmer Contact Phone</label>
+          <input type="tel" value="+91 98765 43210" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <div class="p-3 bg-emerald-50 rounded-xl text-emerald-900 text-[11px]">
+          ✓ Doorstep sample collection by certified KVK Krishi Mitr.<br>
+          ✓ Lab results synchronized directly into Krṣiveda dashboard in 48 hours.
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl shadow-md transition">
+          Confirm Soil Test Booking
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: SELL FERTILIZER (FARMER P2P)       -->
+  <!-- ========================================== -->
+  <div id="sell-fertilizer-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-in fade-in duration-200">
+      <button onclick="closeSellModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-3 bg-amber-50 rounded-2xl text-amber-700">
+          <i data-lucide="store" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="font-black text-slate-900 text-lg">List Your Organic Fertilizer</h3>
+          <p class="text-xs text-slate-500">Sell your farm's compost or manure to fellow farmers</p>
+        </div>
+      </div>
+
+      <form onsubmit="handleFarmerCreateListing(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Product Title / उत्पाद का नाम</label>
+          <input id="seller-form-title" type="text" placeholder="e.g. Desi Cow Vermicompost (देसी केंचुआ खाद)" required class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Category / श्रेणी</label>
+          <select id="seller-form-category" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+            <option value="vermicompost">Vermicompost (वर्मीकंपोस्ट)</option>
+            <option value="cow-dung">Cow Dung Manure (गोबर खाद)</option>
+            <option value="compost">Bio-compost (जैविक खाद)</option>
+            <option value="bio-fertilizer">Neem / Bio-Fertilizer (नीम खली)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Price per Kg (₹ / किग्रा)</label>
+            <input id="seller-form-price" type="number" min="1" value="11" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Available Stock (kg)</label>
+            <input id="seller-form-stock" type="number" min="10" value="450" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Description & Quality Notes</label>
+          <textarea id="seller-form-desc" rows="2" placeholder="e.g. 100% pure desi cow dung compost, cured for 6 months." class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700"></textarea>
+        </div>
+        <div class="p-2.5 bg-emerald-50 rounded-xl text-[11px] text-emerald-900 border border-emerald-100">
+          ✓ Listing will appear immediately in the village marketplace.<br>
+          ✓ Local farmers can order directly for pickup or village delivery.
+        </div>
+        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-extrabold py-3 rounded-xl shadow-md transition active:scale-95">
+          Publish to Farmer Marketplace / लिस्ट करें
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: FARMER / EXTENSION LOGIN PAGE       -->
+  <!-- ========================================== -->
+  <div id="login-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in duration-200">
+      <button onclick="closeLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-800 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-900/20">
+          <i data-lucide="sprout" class="w-8 h-8 text-emerald-300"></i>
+        </div>
+        <h3 class="text-2xl font-black text-slate-900">Welcome to Kṛṣiveda</h3>
+        <p class="text-xs text-slate-500 mt-1">Sign in to your farmer dashboard or extension portal</p>
+      </div>
+
+      <!-- Role Selector -->
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-700 mb-1">Select Persona / भूमिका चुनें</label>
+        <select id="login-role-selector" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+          <option value="farmer">Farmer / किसान (Ramesh Yadav, Plot 12)</option>
+          <option value="extension">Krishi Mitr / KVK Agronomist (Dr. Ananya Sharma)</option>
+        </select>
+      </div>
+
+      <!-- Step 1: Mobile Number Input -->
+      <form id="login-step-phone" onsubmit="handleSendOTP(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Mobile Number / मोबाइल नंबर</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">+91</span>
+            <input id="login-input-phone" type="tel" value="9876543210" maxlength="10" required 
+                   class="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold tracking-wider">
+          </div>
+          <span class="text-[10px] text-slate-400 mt-1 block">A 4-digit verification code will be sent via SMS</span>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center gap-2">
+          <span>Get OTP / ओटीपी प्राप्त करें</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <!-- Step 2: 4-digit OTP Verification (Hidden initially) -->
+      <form id="login-step-otp" onsubmit="handleVerifyOTP(event)" class="hidden space-y-4 text-xs">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-emerald-900">
+          <span class="font-bold block">Enter the 4-digit code sent to <span id="otp-sent-phone-text">+91 9876543210</span></span>
+          <span class="text-[11px] text-emerald-700">Demo OTP code: <strong>2026</strong></span>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">OTP Verification Code</label>
+          <input id="login-input-otp" type="text" maxlength="4" value="2026" required
+                 class="w-full text-center tracking-[0.5em] text-xl font-black py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold py-3 rounded-xl shadow-md transition active:scale-95">
+          Verify & Sign In / सत्यापित करें
+        </button>
+      </form>
+
+      <!-- Quick 1-Click Demo Login Shortcuts -->
+      <div class="mt-6 pt-5 border-t border-slate-100 space-y-2">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center">Quick Demo Login</span>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <button onclick="quickDemoLogin('farmer')" class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-900 font-bold transition flex flex-col items-center">
+            <span>🌾 Farmer Demo</span>
+            <span class="text-[10px] text-emerald-700 font-normal">Ramesh Yadav</span>
+          </button>
+          <button onclick="quickDemoLogin('extension')" class="p-2.5 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100 text-amber-900 font-bold transition flex flex-col items-center">
+            <span>🔬 KVK Officer</span>
+            <span class="text-[10px] text-amber-700 font-normal">Dr. Ananya</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERIC DIALOG MODAL -->
+  <div id="generic-dialog-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-200">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center mb-3">
+        <i data-lucide="check" class="w-7 h-7"></i>
+      </div>
+      <h4 id="dialog-title" class="text-lg font-black text-slate-900 mb-1">Action Successful</h4>
+      <p id="dialog-message" class="text-xs text-slate-600 mb-5 leading-relaxed">Operation has been completed.</p>
+      <button onclick="closeDialog()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs py-2.5 rounded-xl transition">
+        Continue / आगे बढ़ें
+      </button>
+    </div>
+  </div>
+
+  <!-- FLOATING TOAST NOTIFICATION -->
+  <div id="app-toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-slate-800 transition-opacity duration-300 opacity-0 pointer-events-none">
+    <span>Notification text</span>
+  </div>
+
+  <!-- FLOATING KISAN AI ASSISTANT BUTTON -->
+  <div class="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+    <button onclick="toggleKisanAiModal()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs px-4 py-3 rounded-full shadow-2xl flex items-center gap-2.5 transition active:scale-95 border-2 border-emerald-400/40">
+      <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-ping"></span>
+      <i data-lucide="bot" class="w-4 h-4 text-emerald-300"></i>
+      <span data-i18n="ai.title">Kisan AI Sahayak</span>
+    </button>
+  </div>
+
+  <!-- MODAL: KISAN AI AGRONOMY ASSISTANT -->
+  <div id="kisan-ai-modal" class="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-96 bg-white sm:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col h-full sm:h-[520px] hidden animate-in slide-in-from-bottom duration-200">
+    <div class="p-4 bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-t-3xl flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-emerald-300">
+          <i data-lucide="bot" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm" data-i18n="ai.title">Kisan AI Sahayak</h4>
+          <span class="text-[10px] text-emerald-300" data-i18n="ai.sub">Trained on Sentinel-2 Telemetry & Plot 12 Data</span>
+        </div>
+      </div>
+      <button onclick="toggleKisanAiModal()" class="text-white/80 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Quick Prompt Pills -->
+    <div class="p-2.5 bg-emerald-50/60 border-b border-emerald-100 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
+      <button onclick="askQuickPrompt('Why is Zone B flagged?')" class="bg-white text-emerald-900 font-semibold px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap hover:bg-emerald-100">Zone B Moisture?</button>
+      <button onclick="askQuickPrompt('How to treat Zone C phosphorus deficit?')" class="bg-white text-emerald-900 font-semibold px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap hover:bg-emerald-100">Zone C Fertilizer?</button>
+      <button onclick="askQuickPrompt('Is there pest in Zone E?')" class="bg-white text-emerald-900 font-semibold px-2.5 py-1 rounded-full border border-emerald-200 whitespace-nowrap hover:bg-emerald-100">Zone E Rust Pest?</button>
+    </div>
+
+    <!-- Chat Messages Container -->
+    <div id="kisan-ai-messages" class="flex-grow p-4 overflow-y-auto space-y-3 text-xs">
+      <div class="flex items-start gap-2 mb-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xs font-bold shrink-0">🌾</div>
+        <div class="bg-slate-100 text-slate-800 px-3.5 py-2.5 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed">
+          Namaskar Ramesh ji! I am your AI Agronomist assistant for <strong>Plot No. 12 (Varanasi)</strong>. Ask me about your soil tests, satellite zones (A-F), or fertilizer dosing.
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <form onsubmit="handleKisanAiSubmit(event)" class="p-3 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex gap-2">
+      <input id="kisan-ai-input" type="text" data-i18n-placeholder="ai.placeholder" placeholder="Ask in Hindi or English (e.g. Zone B water)..." class="flex-grow px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600">
+      <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- MODAL: OFFICIAL SOIL HEALTH CARD (GOVT SCHEME FORMAT) -->
+  <div id="soil-card-print-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+      <button onclick="closePrintSoilCardModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center pb-4 border-b border-slate-200 mb-4">
+        <span class="text-xs font-bold text-amber-700 uppercase tracking-widest block">Department of Agriculture & Farmers Welfare</span>
+        <h3 class="text-xl font-black text-slate-900 mt-0.5">SOIL HEALTH CARD / मृदा स्वास्थ्य कार्ड</h3>
+        <p class="text-xs text-slate-500">Government of India Aligned Soil Telemetry Standard • Pilot Card ID: SHC-UP-VNS-2026-108</p>
+      </div>
+
+      <!-- Farmer & Field Info Table -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-2xl mb-4 border border-slate-100">
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Farmer Name</span>
+          <span class="font-bold text-slate-800">Ramesh Yadav</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Village & District</span>
+          <span class="font-bold text-slate-800">Chitaipur, Varanasi</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Plot Number</span>
+          <span class="font-bold text-slate-800">Plot 12 (2.4 Acres)</span>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold block">Sampling Date</span>
+          <span class="font-bold text-slate-800">05 Oct 2026</span>
+        </div>
+      </div>
+
+      <!-- Parameter Matrix -->
+      <table class="w-full text-xs text-left border-collapse border border-slate-200 mb-4">
+        <thead class="bg-emerald-900 text-white font-bold">
+          <tr>
+            <th class="p-2 border border-slate-200">Parameter</th>
+            <th class="p-2 border border-slate-200">Test Result</th>
+            <th class="p-2 border border-slate-200">Target Range</th>
+            <th class="p-2 border border-slate-200">Rating</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-800">
+          <tr>
+            <td class="p-2 border border-slate-200 font-semibold">Available Nitrogen (N)</td>
+            <td class="p-2 border border-slate-200">280 kg/ha</td>
+            <td class="p-2 border border-slate-200">280 - 560 kg/ha</td>
+            <td class="p-2 border border-slate-200"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Medium</span></td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-slate-200 font-semibold">Available Phosphorus (P)</td>
+            <td class="p-2 border border-slate-200 text-rose-600 font-bold">22 kg/ha</td>
+            <td class="p-2 border border-slate-200">28 - 56 kg/ha</td>
+            <td class="p-2 border border-slate-200"><span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold">Low</span></td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-slate-200 font-semibold">Available Potassium (K)</td>
+            <td class="p-2 border border-slate-200">310 kg/ha</td>
+            <td class="p-2 border border-slate-200">140 - 280 kg/ha</td>
+            <td class="p-2 border border-slate-200"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">High</span></td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-slate-200 font-semibold">Soil Reaction (pH)</td>
+            <td class="p-2 border border-slate-200">6.8</td>
+            <td class="p-2 border border-slate-200">6.5 - 7.5</td>
+            <td class="p-2 border border-slate-200"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Neutral</span></td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-slate-200 font-semibold">Organic Carbon (OC)</td>
+            <td class="p-2 border border-slate-200">0.65 %</td>
+            <td class="p-2 border border-slate-200">> 0.75 %</td>
+            <td class="p-2 border border-slate-200"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Medium</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Fertilizer Recommendations -->
+      <div class="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200 text-xs text-emerald-950 mb-4">
+        <h5 class="font-bold mb-1">General Fertilizer Advice for Rabi Season:</h5>
+        <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+          <li>Apply 150 kg/acre Farmyard Manure or 40 kg/acre Vermicompost to correct Phosphorus deficiency.</li>
+          <li>Reduce chemical urea application by 30% to prevent soil acid salinity.</li>
+          <li>Rotate wheat with chickpea / moong for biological nitrogen replenishment.</li>
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <span class="text-[10px] text-slate-400">Issued by Krishi Vigyan Kendra (KVK Varanasi) & Krṣiveda Satellite Agriculture</span>
+        <button onclick="triggerPrintSoilCard()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print / Save as PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-emerald-950 text-emerald-200 border-t border-emerald-900/60 mt-12 py-10 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-emerald-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-800 flex items-center justify-center text-emerald-300">
+            <i data-lucide="sprout" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <span class="text-lg font-black text-white">Kṛṣiveda कृषिवेद</span>
+            <p class="text-emerald-400 text-[11px]">Farming with Knowledge for a Greener Bharat • Social Impact Hackathon 2026</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-6 text-xs text-emerald-300">
+          <button onclick="switchTab('dashboard')" class="hover:text-white transition">Home</button>
+          <button onclick="switchTab('satellite')" class="hover:text-white transition">Satellite Zones</button>
+          <button onclick="switchTab('soil-report')" class="hover:text-white transition">Soil Reports</button>
+          <button onclick="switchTab('fertilizers')" class="hover:text-white transition">Fertilizers</button>
+          <button onclick="switchTab('impact')" class="hover:text-white transition">SDG Impact</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-emerald-400 text-[11px]">
+        <p>© 2026 Kṛṣiveda कृषिवेद • Team Gammacoders. All rights reserved.</p>
+        <div class="flex items-center gap-4">
+          <span>Healthy Soil • Happy Farmers • Greener Tomorrow</span>
+          <span class="font-bold text-white">जय किसान, जय भारत 🌾</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Application Logic Scripts -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
